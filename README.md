@@ -20,6 +20,10 @@ La base de datos se encuentra en el esquema `"Yordy Soto"` y contiene las siguie
 - **usuarios:** Datos de los usuarios del sistema.  
 - **viajes:** Información de los viajes, con fecha, hora de salida/llegada y cantidad de pasajeros.
 
+## Diagrama Entidad Relación
+
+![ERD public transport](https://github.com/user-attachments/assets/cb306565-9d9e-4649-a6ba-aa4b29c7bebf)
+
 ## Restauración
 
 Para restaurar el backup en una base de datos PostgreSQL, ejecuta:
