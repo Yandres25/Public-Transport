@@ -24,6 +24,19 @@ La base de datos se encuentra en el esquema `"Yordy Soto"` y contiene las siguie
 
 ![ERD public transport](https://github.com/user-attachments/assets/cb306565-9d9e-4649-a6ba-aa4b29c7bebf)
 
+## Consultas sugeridas
+
+### 📌 Obtener los viajes con más boletos vendidos  
+
+```sql
+SELECT v.id, COUNT(b.id) AS total_boletos
+FROM "Yordy Soto".viajes v
+JOIN "Yordy Soto".boletos b ON v.id = b.viaje_id
+GROUP BY v.id
+ORDER BY total_boletos DESC
+LIMIT 5;
+```
+
 ## Restauración
 
 Para restaurar el backup en una base de datos PostgreSQL, ejecuta:
