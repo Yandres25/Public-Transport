@@ -36,6 +36,20 @@ GROUP BY v.id
 ORDER BY total_boletos DESC
 LIMIT 5;
 ```
+### 📌 Capacidad total de buses activos
+
+```sql
+SELECT SUM(b.capacidad) AS capacidad_total
+FROM buses b
+JOIN estado_bus eb ON b.id_estado = eb.id_estado
+WHERE eb.nombre_estado = 'Activo';
+```
+### 📌 Promedio de pasajeros por viaje
+
+```sql
+SELECT ROUND(AVG(pasajeros_totales)) AS promedio_pasajeros
+FROM "Yordy Soto".viajes;
+```
 
 ## Restauración
 
