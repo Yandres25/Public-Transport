@@ -24,71 +24,97 @@ La base de datos se encuentra en el esquema `"Yordy Soto"` y contiene las siguie
 
 ![ERD public transport](https://github.com/user-attachments/assets/cb306565-9d9e-4649-a6ba-aa4b29c7bebf)
 
-## Consultas sugeridas
+## Vistas
 
-## 📌 Vistas
+### 1. vista_boletos_detalle
 
-### 1. `vista_usuarios_activos`
-Muestra una lista de usuarios activos en la plataforma.
+**Descripción:**  
+Muestra los detalles de cada boleto, incluyendo el ID del boleto, el nombre del usuario, la fecha del viaje, la ruta y el precio.
 
-```sql
-CREATE VIEW vista_usuarios_activos AS
-SELECT id, nombre, email
-FROM usuarios
-WHERE estado = 'activo';
-```
+**Uso:**  
+Para consultar los detalles de los boletos, ejecuta:  
+`SELECT * FROM "Yordy Soto".vista_boletos_detalle;`
 
-- **Campos:** `id`, `nombre`, `email`
-- **Uso:** Se usa para obtener rápidamente la lista de usuarios activos.
+---
 
-### 2. `vista_ventas_mensuales`
-Muestra el total de ventas agrupadas por mes.
+### 2. vista_capacidad_total_buses_activos
 
-```sql
-CREATE VIEW vista_ventas_mensuales AS
-SELECT DATE_TRUNC('month', fecha) AS mes, SUM(total) AS total_ventas
-FROM ventas
-GROUP BY mes;
-```
+**Descripción:**  
+Calcula la capacidad total de todos los buses que se encuentran en estado **Activo**, sumando la capacidad de cada uno.
 
-- **Campos:** `mes`, `total_ventas`
-- **Uso:** Permite analizar las ventas mensuales.
+**Uso:**  
+Para obtener la capacidad total de buses activos, ejecuta:  
+`SELECT * FROM "Yordy Soto".vista_capacidad_total_buses_activos;`
 
-## ⚙️ Funciones
+---
 
-### 1. `calcular_descuento`
-Calcula el descuento aplicado a un producto según el porcentaje.
+### 3. vista_promedio_pasajeros
 
-```sql
-CREATE FUNCTION calcular_descuento(precio NUMERIC, descuento NUMERIC) RETURNS NUMERIC AS $$
-BEGIN
-  RETURN precio - (precio * descuento / 100);
-END;
-$$ LANGUAGE plpgsql;
-```
+**Descripción:**  
+Calcula el promedio (redondeado) de pasajeros totales registrados en los viajes.
 
-- **Parámetros:** `precio`, `descuento`
-- **Retorno:** Precio final con descuento aplicado.
-- **Uso:** `SELECT calcular_descuento(100, 10); -- Retorna 90`
+**Uso:**  
+Para consultar el promedio de pasajeros, ejecuta:  
+`SELECT * FROM "Yordy Soto".vista_promedio_pasajeros;`
 
-## 🔄 Procedimientos
+---
 
-### 1. `registrar_nueva_venta`
-Registra una nueva venta en la base de datos.
+### 4. vista_top_viajes
 
-```sql
-CREATE PROCEDURE registrar_nueva_venta(IN cliente_id INT, IN monto NUMERIC)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-  INSERT INTO ventas (cliente_id, total, fecha)
-  VALUES (cliente_id, monto, NOW());
-END;
-$$;
-```
+**Descripción:**  
+Muestra los 5 viajes con mayor cantidad de boletos vendidos, ordenados de mayor a menor.
 
-- **Parámetros:** `cliente_id`, `monto`
-- **Uso:** `CALL registrar_nueva_venta(1, 250.00);`
+**Uso:**  
+Para consultar los viajes con mayor número de boletos vendidos, ejecuta:  
+`SELECT * FROM "Yordy Soto".vista_top_viajes;`
+
+---
+
+## Procedimientos
+
+### 1. actualizar_estado_bus
+
+**Descripción:**  
+Actualiza el estado de un bus. Recibe el ID del bus y el nuevo estado, y actualiza el campo `estado_bus_id` en la tabla `buses`.
+
+**Uso:**  
+Para actualizar el estado de un bus, ejecuta:  
+`CALL "Yordy Soto".actualizar_estado_bus(<id_bus>, <nuevo_estado>);`
+
+---
+
+### 2. registrar_usuario
+
+**Descripción:**  
+Inserta un nuevo usuario en la tabla `usuarios`, registrando su nombre, el ID del tipo de tarifa y la fecha de nacimiento.
+
+**Uso:**  
+Para registrar un nuevo usuario, ejecuta:  
+`CALL "Yordy Soto".registrar_usuario('Nombre', <tipo_tarifa_id>, 'YYYY-MM-DD');`
+
+---
+
+## Funciones
+
+### 1. boletos_vendidos_viaje
+
+**Descripción:**  
+Retorna la cantidad de boletos vendidos para un viaje específico, contando los registros en la tabla `boletos` que coinciden con el ID del viaje.
+
+**Uso:**  
+Para obtener el número de boletos vendidos en un viaje, ejecuta:  
+`SELECT "Yordy Soto".boletos_vendidos_viaje(<id_viaje>);`
+
+---
+
+### 2. calcular_edad_usuario
+
+**Descripción:**  
+Calcula la edad de un usuario basándose en su fecha de nacimiento. Si la fecha de nacimiento es nula, retorna 0.
+
+**Uso:**  
+Para calcular la edad de un usuario, ejecuta:  
+`SELECT "Yordy Soto".calcular_edad_usuario(<id_usuario>);`
 
 ---
 
