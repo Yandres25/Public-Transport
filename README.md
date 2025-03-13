@@ -24,6 +24,8 @@ La base de datos se encuentra en el esquema `"Yordy Soto"` y contiene las siguie
 
 ![ERD public transport](https://github.com/user-attachments/assets/cb306565-9d9e-4649-a6ba-aa4b29c7bebf)
 
+A continuación se explicará brevemente las vistas, funciones y procedimientos disponibles en el repositorio, y la forma de uso de ellos.
+
 ## Vistas
 
 ### 1. vista_boletos_detalle
