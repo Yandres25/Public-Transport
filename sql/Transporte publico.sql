@@ -5,7 +5,7 @@
 -- Dumped from database version 16.8
 -- Dumped by pg_dump version 17.1
 
--- Started on 2025-03-07 21:13:44
+-- Started on 2025-03-12 21:05:31
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,6 +18,112 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- TOC entry 9 (class 2615 OID 1622039)
+-- Name: Yordy Soto; Type: SCHEMA; Schema: -; Owner: Comfe_owner
+--
+
+CREATE SCHEMA "Yordy Soto";
+
+
+ALTER SCHEMA "Yordy Soto" OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 3636 (class 0 OID 0)
+-- Dependencies: 9
+-- Name: SCHEMA "Yordy Soto"; Type: COMMENT; Schema: -; Owner: Comfe_owner
+--
+
+COMMENT ON SCHEMA "Yordy Soto" IS 'BD Sistema de transporte público. Area Metropolitana de Bucaramanga
+';
+
+
+--
+-- TOC entry 340 (class 1255 OID 1892352)
+-- Name: actualizar_estado_bus(integer, integer); Type: PROCEDURE; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE PROCEDURE "Yordy Soto".actualizar_estado_bus(IN p_bus_id integer, IN p_estado_id integer)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  UPDATE "Yordy Soto".buses
+  SET estado_bus_id = p_estado_id
+  WHERE id = p_bus_id;
+END;
+$$;
+
+
+ALTER PROCEDURE "Yordy Soto".actualizar_estado_bus(IN p_bus_id integer, IN p_estado_id integer) OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 337 (class 1255 OID 1867776)
+-- Name: boletos_vendidos_viaje(integer); Type: FUNCTION; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE FUNCTION "Yordy Soto".boletos_vendidos_viaje(p_viaje_id integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  cantidad INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO cantidad
+  FROM "Yordy Soto".boletos
+  WHERE viaje_id = p_viaje_id;
+  
+  RETURN cantidad;
+END;
+$$;
+
+
+ALTER FUNCTION "Yordy Soto".boletos_vendidos_viaje(p_viaje_id integer) OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 339 (class 1255 OID 1884162)
+-- Name: calcular_edad_usuario(integer); Type: FUNCTION; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE FUNCTION "Yordy Soto".calcular_edad_usuario(p_usuario_id integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  edad INTEGER;
+  nacimiento DATE;
+BEGIN
+  SELECT fecha_nacimiento INTO nacimiento
+  FROM "Yordy Soto".usuarios
+  WHERE id = p_usuario_id;
+  
+  IF nacimiento IS NOT NULL THEN
+    SELECT EXTRACT(YEAR FROM AGE(CURRENT_DATE, nacimiento)) INTO edad;
+  ELSE
+    edad := 0;
+  END IF;
+  
+  RETURN edad;
+END;
+$$;
+
+
+ALTER FUNCTION "Yordy Soto".calcular_edad_usuario(p_usuario_id integer) OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 341 (class 1255 OID 1892353)
+-- Name: registrar_usuario(character varying, integer, date); Type: PROCEDURE; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE PROCEDURE "Yordy Soto".registrar_usuario(IN p_nombre character varying, IN p_tipo_tarifa_id integer, IN p_fecha_nacimiento date)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  INSERT INTO "Yordy Soto".usuarios(nombre, tipo_tarifa_id, fecha_nacimiento)
+  VALUES (p_nombre, p_tipo_tarifa_id, p_fecha_nacimiento);
+END;
+$$;
+
+
+ALTER PROCEDURE "Yordy Soto".registrar_usuario(IN p_nombre character varying, IN p_tipo_tarifa_id integer, IN p_fecha_nacimiento date) OWNER TO "Comfe_owner";
 
 SET default_tablespace = '';
 
@@ -56,7 +162,7 @@ CREATE SEQUENCE "Yordy Soto".boletos_id_seq
 ALTER SEQUENCE "Yordy Soto".boletos_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3581 (class 0 OID 0)
+-- TOC entry 3637 (class 0 OID 0)
 -- Dependencies: 237
 -- Name: boletos_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -97,7 +203,7 @@ CREATE SEQUENCE "Yordy Soto".buses_id_seq
 ALTER SEQUENCE "Yordy Soto".buses_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3582 (class 0 OID 0)
+-- TOC entry 3638 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: buses_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -106,7 +212,7 @@ ALTER SEQUENCE "Yordy Soto".buses_id_seq OWNED BY "Yordy Soto".buses.id;
 
 
 --
--- TOC entry 316 (class 1259 OID 1794111)
+-- TOC entry 305 (class 1259 OID 1794111)
 -- Name: estado_bus; Type: TABLE; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -119,7 +225,7 @@ CREATE TABLE "Yordy Soto".estado_bus (
 ALTER TABLE "Yordy Soto".estado_bus OWNER TO "Comfe_owner";
 
 --
--- TOC entry 315 (class 1259 OID 1794110)
+-- TOC entry 304 (class 1259 OID 1794110)
 -- Name: estado_bus_id_seq; Type: SEQUENCE; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -135,8 +241,8 @@ CREATE SEQUENCE "Yordy Soto".estado_bus_id_seq
 ALTER SEQUENCE "Yordy Soto".estado_bus_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3583 (class 0 OID 0)
--- Dependencies: 315
+-- TOC entry 3639 (class 0 OID 0)
+-- Dependencies: 304
 -- Name: estado_bus_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -176,7 +282,7 @@ CREATE SEQUENCE "Yordy Soto".rutas_id_seq
 ALTER SEQUENCE "Yordy Soto".rutas_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3584 (class 0 OID 0)
+-- TOC entry 3640 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: rutas_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -185,7 +291,7 @@ ALTER SEQUENCE "Yordy Soto".rutas_id_seq OWNED BY "Yordy Soto".rutas.id;
 
 
 --
--- TOC entry 314 (class 1259 OID 1794098)
+-- TOC entry 303 (class 1259 OID 1794098)
 -- Name: tipo_tarifa; Type: TABLE; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -198,7 +304,7 @@ CREATE TABLE "Yordy Soto".tipo_tarifa (
 ALTER TABLE "Yordy Soto".tipo_tarifa OWNER TO "Comfe_owner";
 
 --
--- TOC entry 313 (class 1259 OID 1794097)
+-- TOC entry 302 (class 1259 OID 1794097)
 -- Name: tipo_tarifa_id_seq; Type: SEQUENCE; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -214,8 +320,8 @@ CREATE SEQUENCE "Yordy Soto".tipo_tarifa_id_seq
 ALTER SEQUENCE "Yordy Soto".tipo_tarifa_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3585 (class 0 OID 0)
--- Dependencies: 313
+-- TOC entry 3641 (class 0 OID 0)
+-- Dependencies: 302
 -- Name: tipo_tarifa_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -254,7 +360,7 @@ CREATE SEQUENCE "Yordy Soto".usuarios_id_seq
 ALTER SEQUENCE "Yordy Soto".usuarios_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3586 (class 0 OID 0)
+-- TOC entry 3642 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: usuarios_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -300,7 +406,7 @@ CREATE SEQUENCE "Yordy Soto".viajes_id_seq
 ALTER SEQUENCE "Yordy Soto".viajes_id_seq OWNER TO "Comfe_owner";
 
 --
--- TOC entry 3587 (class 0 OID 0)
+-- TOC entry 3643 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: viajes_id_seq; Type: SEQUENCE OWNED BY; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -309,7 +415,78 @@ ALTER SEQUENCE "Yordy Soto".viajes_id_seq OWNED BY "Yordy Soto".viajes.id;
 
 
 --
--- TOC entry 3389 (class 2604 OID 1630404)
+-- TOC entry 328 (class 1259 OID 1859584)
+-- Name: vista_boletos_detalle; Type: VIEW; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE VIEW "Yordy Soto".vista_boletos_detalle AS
+ SELECT b.id AS boleto_id,
+    u.nombre AS usuario,
+    v.fecha AS fecha_viaje,
+    r.nombre AS ruta,
+    b.precio
+   FROM ((("Yordy Soto".boletos b
+     JOIN "Yordy Soto".usuarios u ON ((b.usuario_id = u.id)))
+     JOIN "Yordy Soto".viajes v ON ((b.viaje_id = v.id)))
+     JOIN "Yordy Soto".rutas r ON ((v.ruta_id = r.id)));
+
+
+ALTER VIEW "Yordy Soto".vista_boletos_detalle OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 326 (class 1259 OID 1851467)
+-- Name: vista_capacidad_total_buses_activos; Type: VIEW; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE VIEW "Yordy Soto".vista_capacidad_total_buses_activos AS
+ SELECT sum(b.capacidad) AS capacidad_total
+   FROM ("Yordy Soto".buses b
+     JOIN "Yordy Soto".estado_bus eb ON ((b.estado_bus_id = eb.id)))
+  WHERE ((eb.nombre)::text = 'Activo'::text);
+
+
+ALTER VIEW "Yordy Soto".vista_capacidad_total_buses_activos OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 327 (class 1259 OID 1851471)
+-- Name: vista_promedio_pasajeros; Type: VIEW; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE VIEW "Yordy Soto".vista_promedio_pasajeros AS
+ SELECT round(avg(pasajeros_totales)) AS promedio_pasajeros
+   FROM "Yordy Soto".viajes;
+
+
+ALTER VIEW "Yordy Soto".vista_promedio_pasajeros OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 325 (class 1259 OID 1851463)
+-- Name: vista_top_viajes; Type: VIEW; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+CREATE VIEW "Yordy Soto".vista_top_viajes AS
+ SELECT v.id,
+    count(b.id) AS total_boletos
+   FROM ("Yordy Soto".viajes v
+     JOIN "Yordy Soto".boletos b ON ((v.id = b.viaje_id)))
+  GROUP BY v.id
+  ORDER BY (count(b.id)) DESC
+ LIMIT 5;
+
+
+ALTER VIEW "Yordy Soto".vista_top_viajes OWNER TO "Comfe_owner";
+
+--
+-- TOC entry 3644 (class 0 OID 0)
+-- Dependencies: 325
+-- Name: VIEW vista_top_viajes; Type: COMMENT; Schema: Yordy Soto; Owner: Comfe_owner
+--
+
+COMMENT ON VIEW "Yordy Soto".vista_top_viajes IS 'Viajes con mas boletos vendidos';
+
+
+--
+-- TOC entry 3435 (class 2604 OID 1630404)
 -- Name: boletos id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -317,7 +494,7 @@ ALTER TABLE ONLY "Yordy Soto".boletos ALTER COLUMN id SET DEFAULT nextval('"Yord
 
 
 --
--- TOC entry 3386 (class 2604 OID 1630366)
+-- TOC entry 3432 (class 2604 OID 1630366)
 -- Name: buses id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -325,7 +502,7 @@ ALTER TABLE ONLY "Yordy Soto".buses ALTER COLUMN id SET DEFAULT nextval('"Yordy 
 
 
 --
--- TOC entry 3391 (class 2604 OID 1794114)
+-- TOC entry 3437 (class 2604 OID 1794114)
 -- Name: estado_bus id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -333,7 +510,7 @@ ALTER TABLE ONLY "Yordy Soto".estado_bus ALTER COLUMN id SET DEFAULT nextval('"Y
 
 
 --
--- TOC entry 3385 (class 2604 OID 1630352)
+-- TOC entry 3431 (class 2604 OID 1630352)
 -- Name: rutas id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -341,7 +518,7 @@ ALTER TABLE ONLY "Yordy Soto".rutas ALTER COLUMN id SET DEFAULT nextval('"Yordy 
 
 
 --
--- TOC entry 3390 (class 2604 OID 1794101)
+-- TOC entry 3436 (class 2604 OID 1794101)
 -- Name: tipo_tarifa id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -349,7 +526,7 @@ ALTER TABLE ONLY "Yordy Soto".tipo_tarifa ALTER COLUMN id SET DEFAULT nextval('"
 
 
 --
--- TOC entry 3387 (class 2604 OID 1630377)
+-- TOC entry 3433 (class 2604 OID 1630377)
 -- Name: usuarios id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -357,7 +534,7 @@ ALTER TABLE ONLY "Yordy Soto".usuarios ALTER COLUMN id SET DEFAULT nextval('"Yor
 
 
 --
--- TOC entry 3388 (class 2604 OID 1630386)
+-- TOC entry 3434 (class 2604 OID 1630386)
 -- Name: viajes id; Type: DEFAULT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -365,7 +542,7 @@ ALTER TABLE ONLY "Yordy Soto".viajes ALTER COLUMN id SET DEFAULT nextval('"Yordy
 
 
 --
--- TOC entry 3571 (class 0 OID 1630401)
+-- TOC entry 3626 (class 0 OID 1630401)
 -- Dependencies: 238
 -- Data for Name: boletos; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -385,7 +562,7 @@ COPY "Yordy Soto".boletos (id, viaje_id, usuario_id, precio) FROM stdin;
 
 
 --
--- TOC entry 3565 (class 0 OID 1630363)
+-- TOC entry 3620 (class 0 OID 1630363)
 -- Dependencies: 232
 -- Data for Name: buses; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -393,7 +570,6 @@ COPY "Yordy Soto".boletos (id, viaje_id, usuario_id, precio) FROM stdin;
 COPY "Yordy Soto".buses (id, numero, capacidad, estado_bus_id) FROM stdin;
 1	M101	40	1
 2	M202	35	1
-3	M303	45	1
 4	M404	30	1
 5	M505	40	1
 6	M606	35	2
@@ -401,12 +577,13 @@ COPY "Yordy Soto".buses (id, numero, capacidad, estado_bus_id) FROM stdin;
 8	M808	30	1
 9	M909	40	3
 10	M110	35	1
+3	M303	45	2
 \.
 
 
 --
--- TOC entry 3575 (class 0 OID 1794111)
--- Dependencies: 316
+-- TOC entry 3630 (class 0 OID 1794111)
+-- Dependencies: 305
 -- Data for Name: estado_bus; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -418,7 +595,7 @@ COPY "Yordy Soto".estado_bus (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3563 (class 0 OID 1630349)
+-- TOC entry 3618 (class 0 OID 1630349)
 -- Dependencies: 228
 -- Data for Name: rutas; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -438,8 +615,8 @@ COPY "Yordy Soto".rutas (id, nombre, origen, destino, duracion) FROM stdin;
 
 
 --
--- TOC entry 3573 (class 0 OID 1794098)
--- Dependencies: 314
+-- TOC entry 3628 (class 0 OID 1794098)
+-- Dependencies: 303
 -- Data for Name: tipo_tarifa; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -452,7 +629,7 @@ COPY "Yordy Soto".tipo_tarifa (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3567 (class 0 OID 1630374)
+-- TOC entry 3622 (class 0 OID 1630374)
 -- Dependencies: 234
 -- Data for Name: usuarios; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -472,7 +649,7 @@ COPY "Yordy Soto".usuarios (id, nombre, tipo_tarifa_id, fecha_nacimiento) FROM s
 
 
 --
--- TOC entry 3569 (class 0 OID 1630383)
+-- TOC entry 3624 (class 0 OID 1630383)
 -- Dependencies: 236
 -- Data for Name: viajes; Type: TABLE DATA; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -492,7 +669,7 @@ COPY "Yordy Soto".viajes (id, ruta_id, bus_id, fecha, hora_salida, pasajeros_tot
 
 
 --
--- TOC entry 3588 (class 0 OID 0)
+-- TOC entry 3645 (class 0 OID 0)
 -- Dependencies: 237
 -- Name: boletos_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -501,7 +678,7 @@ SELECT pg_catalog.setval('"Yordy Soto".boletos_id_seq', 20, true);
 
 
 --
--- TOC entry 3589 (class 0 OID 0)
+-- TOC entry 3646 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: buses_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -510,8 +687,8 @@ SELECT pg_catalog.setval('"Yordy Soto".buses_id_seq', 10, true);
 
 
 --
--- TOC entry 3590 (class 0 OID 0)
--- Dependencies: 315
+-- TOC entry 3647 (class 0 OID 0)
+-- Dependencies: 304
 -- Name: estado_bus_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -519,7 +696,7 @@ SELECT pg_catalog.setval('"Yordy Soto".estado_bus_id_seq', 3, true);
 
 
 --
--- TOC entry 3591 (class 0 OID 0)
+-- TOC entry 3648 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: rutas_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -528,8 +705,8 @@ SELECT pg_catalog.setval('"Yordy Soto".rutas_id_seq', 10, true);
 
 
 --
--- TOC entry 3592 (class 0 OID 0)
--- Dependencies: 313
+-- TOC entry 3649 (class 0 OID 0)
+-- Dependencies: 302
 -- Name: tipo_tarifa_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -537,7 +714,7 @@ SELECT pg_catalog.setval('"Yordy Soto".tipo_tarifa_id_seq', 4, true);
 
 
 --
--- TOC entry 3593 (class 0 OID 0)
+-- TOC entry 3650 (class 0 OID 0)
 -- Dependencies: 233
 -- Name: usuarios_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -546,7 +723,7 @@ SELECT pg_catalog.setval('"Yordy Soto".usuarios_id_seq', 11, true);
 
 
 --
--- TOC entry 3594 (class 0 OID 0)
+-- TOC entry 3651 (class 0 OID 0)
 -- Dependencies: 235
 -- Name: viajes_id_seq; Type: SEQUENCE SET; Schema: Yordy Soto; Owner: Comfe_owner
 --
@@ -555,7 +732,7 @@ SELECT pg_catalog.setval('"Yordy Soto".viajes_id_seq', 10, true);
 
 
 --
--- TOC entry 3406 (class 2606 OID 1630407)
+-- TOC entry 3452 (class 2606 OID 1630407)
 -- Name: boletos boletos_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -564,7 +741,7 @@ ALTER TABLE ONLY "Yordy Soto".boletos
 
 
 --
--- TOC entry 3398 (class 2606 OID 1630372)
+-- TOC entry 3444 (class 2606 OID 1630372)
 -- Name: buses buses_numero_key; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -573,7 +750,7 @@ ALTER TABLE ONLY "Yordy Soto".buses
 
 
 --
--- TOC entry 3400 (class 2606 OID 1630370)
+-- TOC entry 3446 (class 2606 OID 1630370)
 -- Name: buses buses_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -582,7 +759,7 @@ ALTER TABLE ONLY "Yordy Soto".buses
 
 
 --
--- TOC entry 3410 (class 2606 OID 1794116)
+-- TOC entry 3456 (class 2606 OID 1794116)
 -- Name: estado_bus estado_bus_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -591,7 +768,7 @@ ALTER TABLE ONLY "Yordy Soto".estado_bus
 
 
 --
--- TOC entry 3396 (class 2606 OID 1630354)
+-- TOC entry 3442 (class 2606 OID 1630354)
 -- Name: rutas rutas_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -600,7 +777,7 @@ ALTER TABLE ONLY "Yordy Soto".rutas
 
 
 --
--- TOC entry 3408 (class 2606 OID 1794103)
+-- TOC entry 3454 (class 2606 OID 1794103)
 -- Name: tipo_tarifa tipo_tarifa_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -609,7 +786,7 @@ ALTER TABLE ONLY "Yordy Soto".tipo_tarifa
 
 
 --
--- TOC entry 3402 (class 2606 OID 1630381)
+-- TOC entry 3448 (class 2606 OID 1630381)
 -- Name: usuarios usuarios_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -618,7 +795,7 @@ ALTER TABLE ONLY "Yordy Soto".usuarios
 
 
 --
--- TOC entry 3404 (class 2606 OID 1630389)
+-- TOC entry 3450 (class 2606 OID 1630389)
 -- Name: viajes viajes_pkey; Type: CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -627,7 +804,7 @@ ALTER TABLE ONLY "Yordy Soto".viajes
 
 
 --
--- TOC entry 3415 (class 2606 OID 1630413)
+-- TOC entry 3461 (class 2606 OID 1630413)
 -- Name: boletos boletos_usuario_id_fkey; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -636,7 +813,7 @@ ALTER TABLE ONLY "Yordy Soto".boletos
 
 
 --
--- TOC entry 3416 (class 2606 OID 1630408)
+-- TOC entry 3462 (class 2606 OID 1630408)
 -- Name: boletos boletos_viaje_id_fkey; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -645,7 +822,7 @@ ALTER TABLE ONLY "Yordy Soto".boletos
 
 
 --
--- TOC entry 3411 (class 2606 OID 1794117)
+-- TOC entry 3457 (class 2606 OID 1794117)
 -- Name: buses fk_estado_bus; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -654,7 +831,7 @@ ALTER TABLE ONLY "Yordy Soto".buses
 
 
 --
--- TOC entry 3412 (class 2606 OID 1794104)
+-- TOC entry 3458 (class 2606 OID 1794104)
 -- Name: usuarios fk_tipo_tarifa; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -663,7 +840,7 @@ ALTER TABLE ONLY "Yordy Soto".usuarios
 
 
 --
--- TOC entry 3413 (class 2606 OID 1630395)
+-- TOC entry 3459 (class 2606 OID 1630395)
 -- Name: viajes viajes_bus_id_fkey; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -672,7 +849,7 @@ ALTER TABLE ONLY "Yordy Soto".viajes
 
 
 --
--- TOC entry 3414 (class 2606 OID 1630390)
+-- TOC entry 3460 (class 2606 OID 1630390)
 -- Name: viajes viajes_ruta_id_fkey; Type: FK CONSTRAINT; Schema: Yordy Soto; Owner: Comfe_owner
 --
 
@@ -680,7 +857,7 @@ ALTER TABLE ONLY "Yordy Soto".viajes
     ADD CONSTRAINT viajes_ruta_id_fkey FOREIGN KEY (ruta_id) REFERENCES "Yordy Soto".rutas(id) ON DELETE CASCADE;
 
 
--- Completed on 2025-03-07 21:13:56
+-- Completed on 2025-03-12 21:05:42
 
 --
 -- PostgreSQL database dump complete
